@@ -60,15 +60,16 @@ def _load_tweets_from_json(path):
         raise RuntimeError("Invalid tweet JSON file %s: %s" % (path, exc))
 
 
-def _get_client():
-    # type: () -> TwitterClient
+def _get_client(config=None):
+    # type: (Optional[Dict[str, Any]]) -> TwitterClient
     """Create an authenticated API client."""
     console.print("\n🔐 Getting Twitter cookies...")
     try:
         cookies = get_cookies()
     except RuntimeError as exc:
         raise RuntimeError(str(exc))
-    return TwitterClient(cookies["auth_token"], cookies["ct0"])
+    rate_limit_config = (config or {}).get("rateLimit")
+    return TwitterClient(cookies["auth_token"], cookies["ct0"], rate_limit_config)
 
 
 def _resolve_fetch_count(max_count, configured):
@@ -128,7 +129,7 @@ def feed(feed_type, max_count, as_json, input_file, output_file, do_filter):
             console.print("   Loaded %d tweets" % len(tweets))
         else:
             fetch_count = _resolve_fetch_count(max_count, config.get("fetch", {}).get("count", 50))
-            client = _get_client()
+            client = _get_client(config)
             label = "following feed" if feed_type == "following" else "home timeline"
             console.print("📡 Fetching %s (%d tweets)...\n" % (label, fetch_count))
             start = time.time()
@@ -169,7 +170,7 @@ def favorite(max_count, as_json, output_file, do_filter):
     config = load_config()
     try:
         fetch_count = _resolve_fetch_count(max_count, config.get("fetch", {}).get("count", 50))
-        client = _get_client()
+        client = _get_client(config)
         console.print("🔖 Fetching favorites (%d tweets)...\n" % fetch_count)
         start = time.time()
         tweets = client.fetch_bookmarks(fetch_count)
@@ -199,8 +200,9 @@ def user(screen_name):
     # type: (str,) -> None
     """View a user's profile. SCREEN_NAME is the @handle (without @)."""
     screen_name = screen_name.lstrip("@")
+    config = load_config()
     try:
-        client = _get_client()
+        client = _get_client(config)
         console.print("👤 Fetching user @%s..." % screen_name)
         profile = client.fetch_user(screen_name)
     except RuntimeError as exc:
@@ -219,9 +221,10 @@ def user_posts(screen_name, max_count, as_json):
     # type: (str, int, bool) -> None
     """List a user's tweets. SCREEN_NAME is the @handle (without @)."""
     screen_name = screen_name.lstrip("@")
+    config = load_config()
     try:
         fetch_count = _resolve_fetch_count(max_count, 20)
-        client = _get_client()
+        client = _get_client(config)
         console.print("👤 Fetching @%s's profile..." % screen_name)
         profile = client.fetch_user(screen_name)
         console.print("📝 Fetching tweets (%d)...\n" % fetch_count)

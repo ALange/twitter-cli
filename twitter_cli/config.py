@@ -29,6 +29,12 @@ DEFAULT_CONFIG = {
             "views_log": 0.5,
         },
     },
+    "rateLimit": {
+        "requestDelay": 1.5,
+        "maxRetries": 3,
+        "retryBaseDelay": 5.0,
+        "maxCount": 200,
+    },
 }  # type: Dict[str, Any]
 
 
@@ -127,6 +133,17 @@ def _normalize_config(config):
         normalized_weights[key] = _as_float(weights.get(key), float(default_value))
     filter_config["weights"] = normalized_weights
     merged["filter"] = filter_config
+
+    # Normalize rateLimit section
+    rl = merged.get("rateLimit")
+    if not isinstance(rl, dict):
+        rl = {}
+    default_rl = DEFAULT_CONFIG["rateLimit"]
+    rl["requestDelay"] = max(_as_float(rl.get("requestDelay"), default_rl["requestDelay"]), 0.0)
+    rl["maxRetries"] = max(_as_int(rl.get("maxRetries"), default_rl["maxRetries"]), 0)
+    rl["retryBaseDelay"] = max(_as_float(rl.get("retryBaseDelay"), default_rl["retryBaseDelay"]), 1.0)
+    rl["maxCount"] = max(_as_int(rl.get("maxCount"), default_rl["maxCount"]), 1)
+    merged["rateLimit"] = rl
 
     return merged
 

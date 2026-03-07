@@ -12,7 +12,7 @@ def test_cli_user_command_works_with_client_factory(monkeypatch) -> None:
         def fetch_user(self, screen_name: str) -> UserProfile:
             return UserProfile(id="1", name="Alice", screen_name=screen_name)
 
-    monkeypatch.setattr("twitter_cli.cli._get_client", lambda: FakeClient())
+    monkeypatch.setattr("twitter_cli.cli._get_client", lambda config=None: FakeClient())
     runner = CliRunner()
     result = runner.invoke(cli, ["user", "alice"])
     assert result.exit_code == 0
