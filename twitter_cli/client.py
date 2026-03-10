@@ -418,27 +418,56 @@ class TwitterClient:
 
     def fetch_me(self):
         # type: () -> UserProfile
-        """Fetch the currently authenticated user's profile."""
+        """Fetch the currently authenticated user's profile.
+
+        Twitter's /account/multi/list.json endpoint changed its response format:
+        - Old: list of dicts with nested "user" objects (rich fields)
+        - New: {"users": [...]} with minimal fields (user_id, name, screen_name)
+
+        When the response only has minimal fields, we use the screen_name to
+        fetch the full profile via the GraphQL UserByScreenName endpoint.
+        """
         url = "https://x.com/i/api/1.1/account/multi/list.json"
         data = self._api_get(url)
-        if isinstance(data, list) and data:
+
+        screen_name = None
+
+        # New format: {"users": [{"user_id": ..., "screen_name": ..., ...}]}
+        if isinstance(data, dict) and "users" in data:
+            users = data["users"]
+            if isinstance(users, list) and users:
+                user_data = users[0]
+                screen_name = user_data.get("screen_name")
+
+        # Old format: [{"user": {"id_str": ..., ...}}]
+        elif isinstance(data, list) and data:
             user_data = data[0].get("user", {})
             if user_data:
-                return UserProfile(
-                    id=str(user_data.get("id_str", "")),
-                    name=user_data.get("name", ""),
-                    screen_name=user_data.get("screen_name", ""),
-                    bio=user_data.get("description", ""),
-                    location=user_data.get("location", ""),
-                    url=_deep_get(user_data, "entities", "url", "urls", 0, "expanded_url") or "",
-                    followers_count=_parse_int(user_data.get("followers_count"), 0),
-                    following_count=_parse_int(user_data.get("friends_count"), 0),
-                    tweets_count=_parse_int(user_data.get("statuses_count"), 0),
-                    likes_count=_parse_int(user_data.get("favourites_count"), 0),
-                    verified=bool(user_data.get("verified", False)),
-                    profile_image_url=user_data.get("profile_image_url_https", ""),
-                    created_at=user_data.get("created_at", ""),
-                )
+                # Old format had rich fields — try to build profile directly
+                sn = user_data.get("screen_name", "")
+                if user_data.get("followers_count") is not None:
+                    return UserProfile(
+                        id=str(user_data.get("id_str", "")),
+                        name=user_data.get("name", ""),
+                        screen_name=sn,
+                        bio=user_data.get("description", ""),
+                        location=user_data.get("location", ""),
+                        url=_deep_get(user_data, "entities", "url", "urls", 0, "expanded_url") or "",
+                        followers_count=_parse_int(user_data.get("followers_count"), 0),
+                        following_count=_parse_int(user_data.get("friends_count"), 0),
+                        tweets_count=_parse_int(user_data.get("statuses_count"), 0),
+                        likes_count=_parse_int(user_data.get("favourites_count"), 0),
+                        verified=bool(user_data.get("verified", False)),
+                        profile_image_url=user_data.get("profile_image_url_https", ""),
+                        created_at=user_data.get("created_at", ""),
+                    )
+                screen_name = sn
+
+        # Use screen_name to fetch full profile via GraphQL
+        if screen_name:
+            logger.info("Fetching full profile for @%s via GraphQL", screen_name)
+            return self.fetch_user(screen_name)
+
         raise TwitterAPIError(0, "Failed to fetch current user info")
 
     def quote_tweet(self, tweet_id, text):
