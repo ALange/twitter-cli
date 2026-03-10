@@ -52,6 +52,7 @@ from .formatter import (
 from .models import UserProfile
 from .output import (
     default_structured_format,
+    emit_error,
     emit_structured,
     error_payload,
     structured_output_options,
@@ -144,6 +145,8 @@ def _get_client_for_output(config=None, quiet=False):
 
 def _exit_with_error(exc):
     # type: (RuntimeError) -> None
+    if emit_error("api_error", str(exc)):
+        sys.exit(1)
     console.print("[red]❌ %s[/red]" % exc)
     sys.exit(1)
 

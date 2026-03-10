@@ -55,6 +55,22 @@ def test_cli_commands_wrap_client_creation_errors(monkeypatch, args) -> None:
     assert type(result.exception).__name__ == "SystemExit"
 
 
+def test_cli_user_error_yaml(monkeypatch) -> None:
+    monkeypatch.setenv("OUTPUT", "auto")
+    monkeypatch.setattr(
+        "twitter_cli.cli._get_client",
+        lambda config=None: (_ for _ in ()).throw(RuntimeError("User not found")),
+    )
+    runner = CliRunner()
+
+    result = runner.invoke(cli, ["user", "alice", "--yaml"])
+
+    assert result.exit_code == 1
+    payload = yaml.safe_load(result.output)
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "api_error"
+
+
 def test_cli_tweet_accepts_shared_url_with_query(monkeypatch) -> None:
     class FakeClient:
         def fetch_tweet_detail(self, tweet_id: str, max_count: int):
