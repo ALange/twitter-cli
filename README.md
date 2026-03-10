@@ -10,6 +10,8 @@ A terminal-first CLI for Twitter/X: read timelines, bookmarks, and user profiles
 
 - [xhs-cli](https://github.com/jackwener/xhs-cli) — Xiaohongshu (小红书) CLI for notes and account workflows
 - [bilibili-cli](https://github.com/jackwener/bilibili-cli) — Bilibili CLI for videos, users, search, and feeds
+- [discord-cli](https://github.com/jackwener/discord-cli) — Discord CLI for local-first sync, search, and export
+- [tg-cli](https://github.com/jackwener/tg-cli) — Telegram CLI for local-first sync, search, and export
 
 [English](#english) | [中文](#中文)
 
@@ -441,3 +443,10 @@ curl -o .agents/skills/twitter-cli/SKILL.md \
 ```bash
 clawhub install twitter-cli
 ```
+
+### 更多工具
+
+- [bilibili-cli](https://github.com/jackwener/bilibili-cli) — Bilibili 视频、用户、搜索与动态 CLI
+- [discord-cli](https://github.com/jackwener/discord-cli) — Discord 本地优先同步、检索与导出 CLI
+- [tg-cli](https://github.com/jackwener/tg-cli) — Telegram 本地优先同步、检索与导出 CLI
+- [xhs-cli](https://github.com/jackwener/xhs-cli) — 小红书笔记与账号工作流 CLI
