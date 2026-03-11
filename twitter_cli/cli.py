@@ -311,8 +311,8 @@ def cli(ctx, verbose, compact):
     ctx.obj["compact"] = compact
 
 
-def _fetch_and_display(fetch_fn, label, emoji, max_count, as_json, as_yaml, output_file, do_filter, config=None, compact=False):
-    # type: (Any, str, str, Optional[int], bool, bool, Optional[str], bool, Optional[dict], bool) -> None
+def _fetch_and_display(fetch_fn, label, emoji, max_count, as_json, as_yaml, output_file, do_filter, config=None, compact=False, full_text=False):
+    # type: (Any, str, str, Optional[int], bool, bool, Optional[str], bool, Optional[dict], bool, bool) -> None
     """Common fetch-filter-display logic for timeline-like commands."""
     if config is None:
         config = load_config()
@@ -343,12 +343,17 @@ def _fetch_and_display(fetch_fn, label, emoji, max_count, as_json, as_yaml, outp
     if emit_structured(tweets_to_data(filtered), as_json=as_json, as_yaml=as_yaml):
         return
 
-    print_tweet_table(filtered, console, title="%s %s — %d tweets" % (emoji, label, len(filtered)))
+    print_tweet_table(
+        filtered,
+        console,
+        title="%s %s — %d tweets" % (emoji, label, len(filtered)),
+        full_text=full_text,
+    )
     console.print()
 
 
-def _run_bookmarks_command(max_count, as_json, as_yaml, output_file, do_filter, compact=False):
-    # type: (Optional[int], bool, bool, Optional[str], bool, bool) -> None
+def _run_bookmarks_command(max_count, as_json, as_yaml, output_file, do_filter, compact=False, full_text=False):
+    # type: (Optional[int], bool, bool, Optional[str], bool, bool, bool) -> None
     config = load_config()
 
     def _run():
@@ -364,6 +369,7 @@ def _run_bookmarks_command(max_count, as_json, as_yaml, output_file, do_filter, 
             do_filter,
             config,
             compact=compact,
+            full_text=full_text,
         )
 
     _run_guarded(_run)
@@ -383,9 +389,10 @@ def _run_bookmarks_command(max_count, as_json, as_yaml, output_file, do_filter, 
 @click.option("--input", "-i", "input_file", type=str, default=None, help="Load tweets from JSON file.")
 @click.option("--output", "-o", "output_file", type=str, default=None, help="Save filtered tweets to JSON file.")
 @click.option("--filter", "do_filter", is_flag=True, help="Enable score-based filtering.")
+@click.option("--full-text", is_flag=True, help="Show full tweet text in table output.")
 @click.pass_context
-def feed(ctx, feed_type, max_count, as_json, as_yaml, input_file, output_file, do_filter):
-    # type: (Any, str, Optional[int], bool, bool, Optional[str], Optional[str], bool) -> None
+def feed(ctx, feed_type, max_count, as_json, as_yaml, input_file, output_file, do_filter, full_text):
+    # type: (Any, str, Optional[int], bool, bool, Optional[str], Optional[str], bool, bool) -> None
     """Fetch home timeline with optional filtering."""
     compact = ctx.obj.get("compact", False)
     rich_output = use_rich_output(as_json=as_json, as_yaml=as_yaml, compact=compact)
@@ -430,7 +437,7 @@ def feed(ctx, feed_type, max_count, as_json, as_yaml, input_file, output_file, d
 
     title = "👥 Following" if feed_type == "following" else "📱 Twitter"
     title += " — %d tweets" % len(filtered)
-    print_tweet_table(filtered, console, title=title)
+    print_tweet_table(filtered, console, title=title, full_text=full_text)
     console.print()
 
 
@@ -439,11 +446,20 @@ def feed(ctx, feed_type, max_count, as_json, as_yaml, input_file, output_file, d
 @structured_output_options
 @click.option("--output", "-o", "output_file", type=str, default=None, help="Save tweets to JSON file.")
 @click.option("--filter", "do_filter", is_flag=True, help="Enable score-based filtering.")
+@click.option("--full-text", is_flag=True, help="Show full tweet text in table output.")
 @click.pass_context
-def favorites(ctx, max_count, as_json, as_yaml, output_file, do_filter):
-    # type: (Any, Optional[int], bool, bool, Optional[str], bool) -> None
+def favorites(ctx, max_count, as_json, as_yaml, output_file, do_filter, full_text):
+    # type: (Any, Optional[int], bool, bool, Optional[str], bool, bool) -> None
     """Fetch bookmarked (favorite) tweets."""
-    _run_bookmarks_command(max_count, as_json, as_yaml, output_file, do_filter, compact=ctx.obj.get("compact", False))
+    _run_bookmarks_command(
+        max_count,
+        as_json,
+        as_yaml,
+        output_file,
+        do_filter,
+        compact=ctx.obj.get("compact", False),
+        full_text=full_text,
+    )
 
 
 @cli.command(name="bookmarks")
@@ -451,11 +467,20 @@ def favorites(ctx, max_count, as_json, as_yaml, output_file, do_filter):
 @structured_output_options
 @click.option("--output", "-o", "output_file", type=str, default=None, help="Save tweets to JSON file.")
 @click.option("--filter", "do_filter", is_flag=True, help="Enable score-based filtering.")
+@click.option("--full-text", is_flag=True, help="Show full tweet text in table output.")
 @click.pass_context
-def bookmarks(ctx, max_count, as_json, as_yaml, output_file, do_filter):
-    # type: (Any, Optional[int], bool, bool, Optional[str], bool) -> None
+def bookmarks(ctx, max_count, as_json, as_yaml, output_file, do_filter, full_text):
+    # type: (Any, Optional[int], bool, bool, Optional[str], bool, bool) -> None
     """Fetch bookmarked tweets."""
-    _run_bookmarks_command(max_count, as_json, as_yaml, output_file, do_filter, compact=ctx.obj.get("compact", False))
+    _run_bookmarks_command(
+        max_count,
+        as_json,
+        as_yaml,
+        output_file,
+        do_filter,
+        compact=ctx.obj.get("compact", False),
+        full_text=full_text,
+    )
 
 
 @cli.command()
@@ -485,9 +510,10 @@ def user(screen_name, as_json, as_yaml):
 @click.option("--max", "-n", "max_count", type=int, default=None, help="Max number of tweets to fetch.")
 @structured_output_options
 @click.option("--output", "-o", "output_file", type=str, default=None, help="Save tweets to JSON file.")
+@click.option("--full-text", is_flag=True, help="Show full tweet text in table output.")
 @click.pass_context
-def user_posts(ctx, screen_name, max_count, as_json, as_yaml, output_file):
-    # type: (Any, str, int, bool, bool, Optional[str]) -> None
+def user_posts(ctx, screen_name, max_count, as_json, as_yaml, output_file, full_text):
+    # type: (Any, str, int, bool, bool, Optional[str], bool) -> None
     """List a user's tweets. SCREEN_NAME is the @handle (without @)."""
     screen_name = screen_name.lstrip("@")
     compact = ctx.obj.get("compact", False)
@@ -501,7 +527,7 @@ def user_posts(ctx, screen_name, max_count, as_json, as_yaml, output_file):
         _fetch_and_display(
             lambda count: client.fetch_user_tweets(profile.id, count),
             "@%s tweets" % screen_name, "📝", max_count, as_json, as_yaml, output_file, False, config,
-            compact=compact,
+            compact=compact, full_text=full_text,
         )
     _run_guarded(_run)
 
@@ -520,9 +546,10 @@ def user_posts(ctx, screen_name, max_count, as_json, as_yaml, output_file):
 @structured_output_options
 @click.option("--output", "-o", "output_file", type=str, default=None, help="Save tweets to JSON file.")
 @click.option("--filter", "do_filter", is_flag=True, help="Enable score-based filtering.")
+@click.option("--full-text", is_flag=True, help="Show full tweet text in table output.")
 @click.pass_context
-def search(ctx, query, product, max_count, as_json, as_yaml, output_file, do_filter):
-    # type: (Any, str, str, int, bool, bool, Optional[str], bool) -> None
+def search(ctx, query, product, max_count, as_json, as_yaml, output_file, do_filter, full_text):
+    # type: (Any, str, str, int, bool, bool, Optional[str], bool, bool) -> None
     """Search tweets by QUERY string."""
     compact = ctx.obj.get("compact", False)
     config = load_config()
@@ -532,7 +559,7 @@ def search(ctx, query, product, max_count, as_json, as_yaml, output_file, do_fil
         _fetch_and_display(
             lambda count: client.fetch_search(query, count, product),
             "'%s' (%s)" % (query, product), "🔍", max_count, as_json, as_yaml, output_file, do_filter, config,
-            compact=compact,
+            compact=compact, full_text=full_text,
         )
     _run_guarded(_run)
 
@@ -543,9 +570,10 @@ def search(ctx, query, product, max_count, as_json, as_yaml, output_file, do_fil
 @structured_output_options
 @click.option("--output", "-o", "output_file", type=str, default=None, help="Save tweets to JSON file.")
 @click.option("--filter", "do_filter", is_flag=True, help="Enable score-based filtering.")
+@click.option("--full-text", is_flag=True, help="Show full tweet text in table output.")
 @click.pass_context
-def likes(ctx, screen_name, max_count, as_json, as_yaml, output_file, do_filter):
-    # type: (Any, str, int, bool, bool, Optional[str], bool) -> None
+def likes(ctx, screen_name, max_count, as_json, as_yaml, output_file, do_filter, full_text):
+    # type: (Any, str, int, bool, bool, Optional[str], bool, bool) -> None
     """Show tweets liked by a user. SCREEN_NAME is the @handle (without @).
 
     NOTE: Twitter/X made all likes private since June 2024. You can only view
@@ -583,7 +611,7 @@ def likes(ctx, screen_name, max_count, as_json, as_yaml, output_file, do_filter)
         _fetch_and_display(
             lambda count: client.fetch_user_likes(profile.id, count),
             "@%s likes" % screen_name, "❤️", max_count, as_json, as_yaml, output_file, do_filter, config,
-            compact=compact,
+            compact=compact, full_text=full_text,
         )
     _run_guarded(_run)
 
@@ -591,10 +619,11 @@ def likes(ctx, screen_name, max_count, as_json, as_yaml, output_file, do_filter)
 @cli.command()
 @click.argument("tweet_id")
 @click.option("--max", "-n", "max_count", type=int, default=None, help="Max replies to fetch.")
+@click.option("--full-text", is_flag=True, help="Show full reply text in table output.")
 @structured_output_options
 @click.pass_context
-def tweet(ctx, tweet_id, max_count, as_json, as_yaml):
-    # type: (Any, str, int, bool, bool) -> None
+def tweet(ctx, tweet_id, max_count, full_text, as_json, as_yaml):
+    # type: (Any, str, int, bool, bool, bool) -> None
     """View a tweet and its replies. TWEET_ID is the numeric tweet ID or full URL."""
     compact = ctx.obj.get("compact", False)
     tweet_id = _normalize_tweet_id(tweet_id)
@@ -623,7 +652,7 @@ def tweet(ctx, tweet_id, max_count, as_json, as_yaml):
         print_tweet_detail(tweets[0], console)
         if len(tweets) > 1:
             console.print("\n💬 Replies:")
-            print_tweet_table(tweets[1:], console, title="💬 Replies — %d" % (len(tweets) - 1))
+            print_tweet_table(tweets[1:], console, title="💬 Replies — %d" % (len(tweets) - 1), full_text=full_text)
     console.print()
 
 
@@ -632,9 +661,10 @@ def tweet(ctx, tweet_id, max_count, as_json, as_yaml):
 @click.option("--max", "-n", "max_count", type=int, default=None, help="Max tweets to fetch.")
 @structured_output_options
 @click.option("--filter", "do_filter", is_flag=True, help="Enable score-based filtering.")
+@click.option("--full-text", is_flag=True, help="Show full tweet text in table output.")
 @click.pass_context
-def list_timeline(ctx, list_id, max_count, as_json, as_yaml, do_filter):
-    # type: (Any, str, int, bool, bool, bool) -> None
+def list_timeline(ctx, list_id, max_count, as_json, as_yaml, do_filter, full_text):
+    # type: (Any, str, int, bool, bool, bool, bool) -> None
     """Fetch tweets from a Twitter List. LIST_ID is the numeric list ID."""
     compact = ctx.obj.get("compact", False)
     config = load_config()
@@ -643,7 +673,7 @@ def list_timeline(ctx, list_id, max_count, as_json, as_yaml, do_filter):
         _fetch_and_display(
             lambda count: client.fetch_list_timeline(list_id, count),
             "list %s" % list_id, "📋", max_count, as_json, as_yaml, None, do_filter, config,
-            compact=compact,
+            compact=compact, full_text=full_text,
         )
     _run_guarded(_run)
 

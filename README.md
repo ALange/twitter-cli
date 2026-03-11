@@ -26,6 +26,7 @@ A terminal-first CLI for Twitter/X: read timelines, bookmarks, and user profiles
 - Tweet detail: view a tweet and its replies
 - List timeline: fetch tweets from a Twitter List
 - User lookup: fetch user profile, tweets, likes, followers, and following
+- `--full-text`: disable tweet text truncation in rich table output
 - Structured output: export any data as YAML or JSON for scripting and AI agent integration
 - Optional scoring filter: rank tweets by engagement weights
 - Structured output contract: [SCHEMA.md](./SCHEMA.md)
@@ -94,32 +95,39 @@ twitter feed --filter
 ```bash
 # Feed
 twitter feed --max 50
+twitter feed --full-text
 twitter feed --json > tweets.json
 twitter feed --input tweets.json
 
 # Bookmarks
 twitter bookmarks
+twitter bookmarks --full-text
 twitter bookmarks --max 30 --yaml
 
 # Search
 twitter search "Claude Code"
 twitter search "AI agent" -t Latest --max 50
+twitter search "AI agent" --full-text
 twitter search "机器学习" --yaml
 twitter search "topic" -o results.json         # Save to file
 twitter search "trending" --filter              # Apply ranking filter
 
 # Tweet detail (view tweet + replies)
 twitter tweet 1234567890
+twitter tweet 1234567890 --full-text
 twitter tweet https://x.com/user/status/1234567890
 
 # List timeline
 twitter list 1539453138322673664
+twitter list 1539453138322673664 --full-text
 
 # User
 twitter user elonmusk
 twitter user-posts elonmusk --max 20
+twitter user-posts elonmusk --full-text
 twitter user-posts elonmusk -o tweets.json
 twitter likes elonmusk --max 30          # ⚠️ own likes only (private since Jun 2024)
+twitter likes elonmusk --full-text
 twitter likes elonmusk -o likes.json
 twitter followers elonmusk --max 50
 twitter following elonmusk --max 50
@@ -201,6 +209,7 @@ rateLimit:
 Fetch behavior:
 
 - `fetch.count` is the default item count for read commands when `--max` is omitted
+- Rich table output truncates long tweet text by default; use `--full-text` to show full body text in list views
 
 Filter behavior:
 
@@ -230,6 +239,13 @@ Mode behavior:
 - **Don't run too frequently** — each startup fetches x.com to initialize anti-detection headers
 - **Use browser cookie extraction** — provides full cookie fingerprint
 - **Avoid datacenter IPs** — residential proxies are much safer
+
+### Output Modes
+
+- Use the default rich table for interactive reading
+- Use `--full-text` when reading long posts in terminal tables
+- Use `--yaml` or `--json` for scripts and agent pipelines
+- Use `-c` / `--compact` when token efficiency matters more than completeness
 
 ### Troubleshooting
 
@@ -330,6 +346,7 @@ After installation, OpenClaw can call `twitter-cli` commands directly.
 - 推文详情：查看推文及其回复
 - 列表时间线：获取 Twitter List 的推文
 - 用户查询：查看用户资料、推文、点赞、粉丝和关注
+- `--full-text`：在 rich table 输出里关闭推文正文截断
 - 结构化输出：支持 YAML 和 JSON，便于脚本处理和 AI agent 集成
 
 > **AI Agent 提示：** 需要结构化输出时优先使用 `--yaml`，除非下游必须是 JSON。stdout 不是 TTY 时默认输出 YAML。用 `--max` 控制返回数量。
@@ -374,27 +391,34 @@ uv tool upgrade twitter-cli
 twitter feed
 twitter feed -t following
 twitter feed --filter
+twitter feed --full-text
 
 # 收藏
 twitter bookmarks
+twitter bookmarks --full-text
 
 # 搜索
 twitter search "Claude Code"
 twitter search "AI agent" -t Latest --max 50
+twitter search "AI agent" --full-text
 twitter search "topic" -o results.json         # 保存到文件
 twitter search "trending" --filter              # 启用排序筛选
 
 # 推文详情
 twitter tweet 1234567890
+twitter tweet 1234567890 --full-text
 
 # 列表时间线
 twitter list 1539453138322673664
+twitter list 1539453138322673664 --full-text
 
 # 用户
 twitter user elonmusk
 twitter user-posts elonmusk --max 20
+twitter user-posts elonmusk --full-text
 twitter user-posts elonmusk -o tweets.json
 twitter likes elonmusk --max 30           # ⚠️ 仅可查看自己的点赞（2024年6月起平台已私密化）
+twitter likes elonmusk --full-text
 twitter likes elonmusk -o likes.json
 twitter followers elonmusk
 twitter following elonmusk
@@ -445,6 +469,8 @@ export TWITTER_PROXY=socks5://127.0.0.1:1080
 
 未传 `--max` 时，所有读取命令默认使用 `config.yaml` 里的 `fetch.count`。
 
+rich table 输出默认会截断较长正文；如果需要在列表视图中查看完整正文，可加 `--full-text`。
+
 只有在传入 `--filter` 时才会启用筛选评分；默认不筛选。
 
 评分公式：
@@ -489,6 +515,13 @@ score = likes_w * likes
 - **使用浏览器 Cookie 提取** — 提供完整 Cookie 指纹
 - **避免数据中心 IP** — 住宅代理更安全
 - Cookie 仅在本地使用，不会被本工具上传
+
+### 输出模式建议
+
+- 默认 rich table 适合终端交互式浏览
+- 需要在表格里看完整正文时，使用 `--full-text`
+- 需要脚本消费时，优先使用 `--yaml` 或 `--json`
+- 需要节省 token 时，使用 `-c` / `--compact`
 
 ### 作为 AI Agent Skill 使用
 

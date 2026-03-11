@@ -24,6 +24,7 @@ def print_tweet_table(
     tweets: List[Tweet],
     console: Optional[Console] = None,
     title: Optional[str] = None,
+    full_text: bool = False,
 ) -> None:
     """Print tweets as a rich table."""
     if console is None:
@@ -46,9 +47,9 @@ def print_tweet_table(
         if tweet.is_retweet and tweet.retweeted_by:
             author_text += "\n🔄 @%s" % tweet.retweeted_by
 
-        # Tweet text (truncated)
+        # Tweet text
         text = tweet.text.replace("\n", " ").strip()
-        if len(text) > 120:
+        if not full_text and len(text) > 120:
             text = text[:117] + "..."
 
         # Media indicators
@@ -66,7 +67,9 @@ def print_tweet_table(
         # Quoted tweet
         if tweet.quoted_tweet:
             qt = tweet.quoted_tweet
-            qt_text = qt.text.replace("\n", " ")[:60]
+            qt_text = qt.text.replace("\n", " ")
+            if not full_text and len(qt_text) > 60:
+                qt_text = qt_text[:57] + "..."
             text += "\n┌ @%s: %s" % (qt.author.screen_name, qt_text)
 
         # Tweet link

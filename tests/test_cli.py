@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from click.testing import CliRunner
 import pytest
+from rich.console import Console
 import yaml
 
 from twitter_cli.cli import cli
+from twitter_cli.formatter import print_tweet_table
 from twitter_cli.models import UserProfile
 from twitter_cli.serialization import tweets_to_json
 
@@ -40,6 +42,27 @@ def test_cli_feed_json_input_path(tmp_path, tweet_factory) -> None:
     result = runner.invoke(cli, ["feed", "--input", str(json_path), "--json"])
     assert result.exit_code == 0
     assert '"id": "1"' in result.output
+
+
+def test_print_tweet_table_truncates_text_by_default(tweet_factory) -> None:
+    long_text = "A" * 140
+    console = Console(record=True, width=400)
+
+    print_tweet_table([tweet_factory("1", text=long_text)], console=console)
+
+    output = console.export_text()
+    assert ("A" * 117 + "...") in output
+
+
+def test_print_tweet_table_full_text_shows_untruncated_text(tweet_factory) -> None:
+    long_text = "B" * 140
+    console = Console(record=True, width=400)
+
+    print_tweet_table([tweet_factory("1", text=long_text)], console=console, full_text=True)
+
+    output = console.export_text()
+    assert long_text in output
+    assert ("B" * 117 + "...") not in output
 
 
 @pytest.mark.parametrize(

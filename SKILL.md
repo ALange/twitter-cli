@@ -114,6 +114,19 @@ twitter feed --json | jq '.[0].text'
 All machine-readable output uses the envelope documented in [SCHEMA.md](./SCHEMA.md).
 Tweet and user payloads now live under `.data`.
 
+### Full text: `--full-text` flag (rich tables only)
+
+Use `--full-text` when the user wants complete post bodies in terminal tables.
+It affects rich table list views such as `feed`, `bookmarks`, `search`, `user-posts`, `likes`, `list`, and reply tables in `tweet`.
+It does **not** change `--json`, `--yaml`, or `-c` compact output.
+
+```bash
+twitter feed --full-text
+twitter search "AI agent" --full-text
+twitter user-posts elonmusk --max 20 --full-text
+twitter tweet 1234567890 --full-text
+```
+
 ### Compact: `-c` flag (minimal tokens for LLM)
 
 ```bash
@@ -138,19 +151,26 @@ twitter user elonmusk --json           # JSON output
 twitter feed                           # Home timeline (For You)
 twitter feed -t following              # Following timeline
 twitter feed --max 50                  # Limit count
+twitter feed --full-text               # Show full post body in table
 twitter feed --filter                  # Enable ranking filter
 twitter feed --yaml > tweets.yaml      # Export as YAML
 twitter feed --input tweets.json       # Read from local JSON file
 twitter bookmarks                      # Bookmarked tweets
+twitter bookmarks --full-text          # Full text in bookmarks table
 twitter bookmarks --max 30 --yaml
 twitter search "keyword"               # Search tweets
 twitter search "AI agent" -t Latest --max 50
+twitter search "AI agent" --full-text  # Full text in search results
 twitter search "topic" -o results.json # Save to file
 twitter tweet 1234567890               # Tweet detail + replies
+twitter tweet 1234567890 --full-text   # Full text in reply table
 twitter tweet https://x.com/user/status/12345  # Accepts URL
 twitter list 1539453138322673664       # List timeline
+twitter list 1539453138322673664 --full-text
 twitter user-posts elonmusk --max 20   # User's tweets
+twitter user-posts elonmusk --full-text
 twitter likes elonmusk --max 30        # User's likes (own only, see note)
+twitter likes elonmusk --full-text
 twitter followers elonmusk --max 50    # Followers
 twitter following elonmusk --max 50    # Following
 ```
@@ -240,6 +260,10 @@ twitter followers "$MY_NAME" --max 200 --json | jq -r '.data[].username' | grep 
 # Compact mode for token-efficient LLM context
 twitter -c feed -t following --max 30
 twitter -c bookmarks --max 20
+
+# Rich table with complete post bodies
+twitter feed -t following --max 20 --full-text
+twitter search "AI agent" --max 20 --full-text
 
 # Full JSON for analysis
 twitter feed -t following --max 30 -o following.json
