@@ -22,6 +22,10 @@ tags:
 # Install (requires Python 3.8+)
 uv tool install twitter-cli
 # Or: pipx install twitter-cli
+
+# Upgrade to latest (recommended to avoid API errors)
+uv tool upgrade twitter-cli
+# Or: pipx upgrade twitter-cli
 ```
 
 ## Authentication

@@ -59,6 +59,15 @@ uv tool install twitter-cli
 pipx install twitter-cli
 ```
 
+Upgrade to the latest version:
+
+```bash
+uv tool upgrade twitter-cli
+# Or: pipx upgrade twitter-cli
+```
+
+> **Tip:** Upgrade regularly to avoid unexpected errors from outdated API handling.
+
 Install from source:
 
 ```bash
@@ -332,6 +341,15 @@ After installation, OpenClaw can call `twitter-cli` commands directly.
 # 推荐：uv tool
 uv tool install twitter-cli
 ```
+
+升级到最新版本：
+
+```bash
+uv tool upgrade twitter-cli
+# 或：pipx upgrade twitter-cli
+```
+
+> **提示：** 建议定期升级，避免因版本过旧导致的 API 调用异常。
 
 ### 使用指南
 
