@@ -77,6 +77,7 @@ StructuredMode = Optional[str]
 WritePayload = Dict[str, Any]
 WriteOperation = Callable[[TwitterClient], WritePayload]
 
+logger = logging.getLogger(__name__)
 console = Console(stderr=True)
 FEED_TYPES = ["for-you", "following"]
 SEARCH_PRODUCTS = ["Top", "Latest", "Photos", "Videos"]
