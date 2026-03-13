@@ -45,7 +45,7 @@ from rich.console import Console
 
 from . import __version__
 from .auth import get_cookies
-from .cache import get_cache_size, get_tweet_id_by_index, save_tweet_cache
+from .cache import resolve_cached_tweet, save_tweet_cache
 from .client import TwitterClient
 from .config import load_config
 from .filter import filter_tweets
@@ -349,17 +349,18 @@ def _fetch_and_display(fetch_fn, label, emoji, max_count, as_json, as_yaml, outp
         click.echo(tweets_to_compact_json(filtered))
         return
 
+    save_tweet_cache(filtered)
+
     if emit_structured(tweets_to_data(filtered), as_json=as_json, as_yaml=as_yaml):
         return
 
-    save_tweet_cache(filtered)
     print_tweet_table(
         filtered,
         console,
         title="%s %s — %d tweets" % (emoji, label, len(filtered)),
         full_text=full_text,
     )
-    console.print("[dim]💡 Use `twitter show <N>` to view tweet #N from this list.[/dim]")
+    _print_show_hint()
     console.print()
 
 
@@ -443,14 +444,15 @@ def feed(ctx, feed_type, max_count, as_json, as_yaml, input_file, output_file, d
         click.echo(tweets_to_compact_json(filtered))
         return
 
+    save_tweet_cache(filtered)
+
     if emit_structured(tweets_to_data(filtered), as_json=as_json, as_yaml=as_yaml):
         return
 
     title = "👥 Following" if feed_type == "following" else "📱 Twitter"
     title += " — %d tweets" % len(filtered)
-    save_tweet_cache(filtered)
     print_tweet_table(filtered, console, title=title, full_text=full_text)
-    console.print("[dim]💡 Use `twitter show <N>` to view tweet #N from this list.[/dim]")
+    _print_show_hint()
     console.print()
 
 
@@ -725,6 +727,12 @@ def _emit_tweet_detail(tweets, compact, as_json, as_yaml, full_text):
     console.print()
 
 
+def _print_show_hint():
+    # type: () -> None
+    """Print a hint about the `show` command."""
+    console.print("[dim]💡 Use `twitter show <N>` to view tweet #N from this list.[/dim]")
+
+
 @cli.command()
 @click.argument("index", type=click.IntRange(1))
 @click.option("--max", "-n", "max_count", type=int, default=None, help="Max replies to fetch.")
@@ -736,9 +744,8 @@ def show(ctx, index, max_count, full_text, as_json, as_yaml):
     """View tweet #INDEX from the last feed/search results."""
     compact = ctx.obj.get("compact", False)
 
-    tweet_id = get_tweet_id_by_index(index)
+    tweet_id, cache_size = resolve_cached_tweet(index)
     if tweet_id is None:
-        cache_size = get_cache_size()
         if cache_size == 0:
             raise click.UsageError(
                 "No cached results found. Run `twitter feed`, `twitter search`, "

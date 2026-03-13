@@ -6,7 +6,7 @@ import json
 import logging
 import time
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from .models import Tweet
 
@@ -50,19 +50,17 @@ def _load_cache() -> Optional[List[dict]]:
         return None
 
 
-def get_tweet_id_by_index(index: int) -> Optional[str]:
-    """Return tweet ID at *index* (1-based), or None if not found."""
+def resolve_cached_tweet(index: int) -> Tuple[Optional[str], int]:
+    """Resolve a 1-based index to a tweet ID, returning (tweet_id, cache_size).
+
+    Returns (tweet_id, cache_size) where tweet_id is None if the index
+    cannot be resolved (empty/expired cache or out-of-range index).
+    """
     entries = _load_cache()
     if entries is None:
-        return None
+        return None, 0
     for entry in entries:
         if entry.get("index") == index:
             tweet_id = entry.get("id")
-            return str(tweet_id) if tweet_id is not None else None
-    return None
-
-
-def get_cache_size() -> int:
-    """Return number of tweets in the current cache (0 if unavailable)."""
-    entries = _load_cache()
-    return len(entries) if entries is not None else 0
+            return (str(tweet_id) if tweet_id is not None else None), len(entries)
+    return None, len(entries)
