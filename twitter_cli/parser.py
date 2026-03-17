@@ -317,7 +317,7 @@ def parse_tweet_result(result, depth=0):
         retweeted_by=retweeted_by,
         quoted_tweet=quoted_tweet,
         lang=actual_legacy.get("lang", ""),
-        is_subscriber_only=retweet_subscriber_only if is_retweet else is_subscriber_only,
+        is_subscriber_only=(is_subscriber_only or retweet_subscriber_only) if is_retweet else is_subscriber_only,
         **_parse_article(actual_data),
     )
 

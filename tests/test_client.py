@@ -645,6 +645,73 @@ class TestParseTweetResult:
 
     @patch("twitter_cli.client._get_cffi_session")
     @patch("twitter_cli.client._gen_ct_headers", return_value={})
+    def test_parses_outer_visibility_wrapper_for_retweet(self, mock_ct_headers, mock_session):
+        mock_session.return_value = MagicMock()
+        mock_session.return_value.get = MagicMock(side_effect=Exception("skip"))
+
+        client = TwitterClient.__new__(TwitterClient)
+        client._ct_init_attempted = True
+        client._client_transaction = None
+
+        wrapped_retweet = {
+            "__typename": "TweetWithVisibilityResults",
+            "tweetInterstitial": {
+                "__typename": "TweetInterstitial",
+                "text": {"rtl": False, "text": "Subscribe to see this post"},
+            },
+            "tweet": {
+                "__typename": "Tweet",
+                "rest_id": "outer-retweet",
+                "legacy": {
+                    "full_text": "RT @inner",
+                    "created_at": "Tue Mar 17 00:00:00 +0000 2026",
+                    "lang": "en",
+                    "retweeted_status_result": {
+                        "result": {
+                            "__typename": "Tweet",
+                            "rest_id": "inner-retweeted",
+                            "legacy": {
+                                "full_text": "subscriber post",
+                                "created_at": "Tue Mar 17 00:00:00 +0000 2026",
+                                "lang": "en",
+                            },
+                            "core": {
+                                "user_results": {
+                                    "result": {
+                                        "rest_id": "inner-user",
+                                        "legacy": {
+                                            "screen_name": "inner",
+                                            "name": "Inner User",
+                                        },
+                                    }
+                                }
+                            },
+                        }
+                    },
+                },
+                "core": {
+                    "user_results": {
+                        "result": {
+                            "rest_id": "outer-user",
+                            "legacy": {
+                                "screen_name": "outer",
+                                "name": "Outer User",
+                            },
+                            "core": {"screen_name": "outer"},
+                        }
+                    }
+                },
+            },
+        }
+
+        tweet = parse_tweet_result(wrapped_retweet)
+        assert tweet is not None
+        assert tweet.id == "inner-retweeted"
+        assert tweet.is_retweet is True
+        assert tweet.is_subscriber_only is True
+
+    @patch("twitter_cli.client._get_cffi_session")
+    @patch("twitter_cli.client._gen_ct_headers", return_value={})
     def test_depth_limit(self, mock_ct_headers, mock_session):
         mock_session.return_value = MagicMock()
         mock_session.return_value.get = MagicMock(side_effect=Exception("skip"))
@@ -831,4 +898,3 @@ class TestCreateTweetWithMedia:
         result = client.create_tweet("no media")
         assert result == "88"
         assert captured_body["media"]["media_entities"] == []
-
