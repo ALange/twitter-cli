@@ -494,11 +494,60 @@ class TestRenderArticleTextBlock:
             "Read the [docs](https://docs.example.com) and the [course](https://course.example.com)."
         )
 
+    def test_returns_empty_string_for_missing_text(self):
+        assert _render_article_text_block({"entityRanges": []}, {}) == ""
+
+    def test_returns_empty_string_for_non_string_text(self):
+        assert _render_article_text_block({"text": None, "entityRanges": []}, {}) == ""
+
+    def test_ignores_non_dict_entity_ranges(self):
+        block = {"text": "Intro", "entityRanges": [None, "bad", {"key": 0, "offset": 0, "length": 5}]}
+        entity_map = {"0": {"type": "LINK", "data": {"url": "https://example.com"}}}
+
+        assert _render_article_text_block(block, entity_map) == "[Intro](https://example.com)"
+
+    def test_ignores_missing_or_non_dict_entities(self):
+        block = {
+            "text": "Docs here",
+            "entityRanges": [
+                {"key": 0, "offset": 0, "length": 4},
+                {"key": 1, "offset": 5, "length": 4},
+            ],
+        }
+        entity_map = {"1": "bad"}
+
+        assert _render_article_text_block(block, entity_map) == "Docs here"
+
     def test_ignores_non_link_entities(self):
         block = {"text": "Intro", "entityRanges": [{"key": 4, "offset": 0, "length": 5}]}
         entity_map = {"4": {"type": "MARKDOWN", "data": {"markdown": "```md\nIntro\n```"}}}
 
         assert _render_article_text_block(block, entity_map) == "Intro"
+
+    def test_ignores_invalid_offsets_lengths_and_blank_urls(self):
+        block = {
+            "text": "Read docs now",
+            "entityRanges": [
+                {"key": 0, "offset": "bad", "length": 4},
+                {"key": 1, "offset": 5, "length": 0},
+                {"key": 2, "offset": 5, "length": 4},
+                {"key": 3, "offset": 20, "length": 3},
+            ],
+        }
+        entity_map = {
+            "0": {"type": "LINK", "data": {"url": "https://bad-offset.example.com"}},
+            "1": {"type": "LINK", "data": {"url": "https://zero-length.example.com"}},
+            "2": {"type": "LINK", "data": {"url": "   "}},
+            "3": {"type": "LINK", "data": {"url": "https://out-of-bounds.example.com"}},
+        }
+
+        assert _render_article_text_block(block, entity_map) == "Read docs now"
+
+    def test_ignores_range_with_empty_label(self):
+        block = {"text": "abc", "entityRanges": [{"key": 0, "offset": 1, "length": -1}]}
+        entity_map = {"0": {"type": "LINK", "data": {"url": "https://example.com"}}}
+
+        assert _render_article_text_block(block, entity_map) == "abc"
 
 
 class TestParseArticle:
