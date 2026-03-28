@@ -83,88 +83,88 @@ uv sync
 
 ```bash
 # Fetch home timeline (For You)
-twitter feed
+twx feed
 
 # Fetch Following timeline
-twitter feed -t following
+twx feed -t following
 
 # Enable ranking filter explicitly
-twitter feed --filter
+twx feed --filter
 ```
 
 ### Usage
 
 ```bash
 # Feed
-twitter feed --max 50
-twitter feed --full-text
-twitter feed --output tweets.json
-twitter feed --input tweets.json
-twitter feed --json                    # Structured stdout for scripts/agents
+twx feed --max 50
+twx feed --full-text
+twx feed --output tweets.json
+twx feed --input tweets.json
+twx feed --json                    # Structured stdout for scripts/agents
 
 # Bookmarks
-twitter bookmarks
-twitter bookmarks --full-text
-twitter bookmarks --max 30 --yaml
+twx bookmarks
+twx bookmarks --full-text
+twx bookmarks --max 30 --yaml
 
 # Search
-twitter search "Claude Code"
-twitter search "AI agent" -t Latest --max 50
-twitter search "AI agent" --full-text
-twitter search "机器学习" --yaml
-twitter search "python" --from elonmusk --lang en --since 2026-01-01
-twitter search --from bbc --exclude retweets --has links
-twitter search "topic" -o results.json         # Save to file
-twitter search "trending" --filter              # Apply ranking filter
+twx search "Claude Code"
+twx search "AI agent" -t Latest --max 50
+twx search "AI agent" --full-text
+twx search "机器学习" --yaml
+twx search "python" --from elonmusk --lang en --since 2026-01-01
+twx search --from bbc --exclude retweets --has links
+twx search "topic" -o results.json         # Save to file
+twx search "trending" --filter              # Apply ranking filter
 
 # Tweet detail (view tweet + replies)
-twitter tweet 1234567890
-twitter tweet 1234567890 --full-text
-twitter tweet https://x.com/user/status/1234567890
+twx tweet 1234567890
+twx tweet 1234567890 --full-text
+twx tweet https://x.com/user/status/1234567890
 
 # Open tweet by index from last list output
-twitter show 2                         # Open tweet #2 from last feed/search
-twitter show 2 --full-text             # Full text in reply table
-twitter show 2 --json                  # Structured output
+twx show 2                         # Open tweet #2 from last feed/search
+twx show 2 --full-text             # Full text in reply table
+twx show 2 --json                  # Structured output
 
 # Twitter Article
-twitter article 1234567890
-twitter article https://x.com/user/article/1234567890 --json
-twitter article 1234567890 --markdown
-twitter article 1234567890 --output article.md
+twx article 1234567890
+twx article https://x.com/user/article/1234567890 --json
+twx article 1234567890 --markdown
+twx article 1234567890 --output article.md
 
 # List timeline
-twitter list 1539453138322673664
-twitter list 1539453138322673664 --full-text
+twx list 1539453138322673664
+twx list 1539453138322673664 --full-text
 
 # User
-twitter user elonmusk
-twitter user-posts elonmusk --max 20
-twitter user-posts elonmusk --full-text
-twitter user-posts elonmusk -o tweets.json
-twitter likes elonmusk --max 30          # ⚠️ own likes only (private since Jun 2024)
-twitter likes elonmusk --full-text
-twitter likes elonmusk -o likes.json
-twitter followers elonmusk --max 50
-twitter following elonmusk --max 50
+twx user elonmusk
+twx user-posts elonmusk --max 20
+twx user-posts elonmusk --full-text
+twx user-posts elonmusk -o tweets.json
+twx likes elonmusk --max 30          # ⚠️ own likes only (private since Jun 2024)
+twx likes elonmusk --full-text
+twx likes elonmusk -o likes.json
+twx followers elonmusk --max 50
+twx following elonmusk --max 50
 
 # Write operations
-twitter post "Hello from twitter-cli!"
-twitter post "Hello!" --image photo.jpg            # Post with image
-twitter post "Gallery" -i a.png -i b.jpg -i c.webp  # Up to 4 images
-twitter post "reply text" --reply-to 1234567890
-twitter reply 1234567890 "Nice!" -i screenshot.png  # Reply with image
-twitter quote 1234567890 "Look" -i chart.png        # Quote with image
-twitter post "Hello from twitter-cli!" --json
-twitter delete 1234567890
-twitter like 1234567890
-twitter like 1234567890 --yaml
-twitter unlike 1234567890
-twitter retweet 1234567890
-twitter unretweet 1234567890
-twitter bookmark 1234567890
-twitter unbookmark 1234567890
-twitter follow elonmusk --json
+twx post "Hello from twitter-cli!"
+twx post "Hello!" --image photo.jpg            # Post with image
+twx post "Gallery" -i a.png -i b.jpg -i c.webp  # Up to 4 images
+twx post "reply text" --reply-to 1234567890
+twx reply 1234567890 "Nice!" -i screenshot.png  # Reply with image
+twx quote 1234567890 "Look" -i chart.png        # Quote with image
+twx post "Hello from twitter-cli!" --json
+twx delete 1234567890
+twx like 1234567890
+twx like 1234567890 --yaml
+twx unlike 1234567890
+twx retweet 1234567890
+twx unretweet 1234567890
+twx bookmark 1234567890
+twx unbookmark 1234567890
+twx follow elonmusk --json
 ```
 
 ### Authentication
@@ -179,13 +179,13 @@ Browser extraction is recommended — it forwards ALL Twitter cookies (not just 
 **Chrome multi-profile**: All Chrome profiles are scanned automatically. To specify a profile:
 
 ```bash
-TWITTER_CHROME_PROFILE="Profile 2" twitter feed
+TWITTER_CHROME_PROFILE="Profile 2" twx feed
 ```
 
 **Browser priority:** If you have multiple browsers, set `TWITTER_BROWSER` to try a specific browser first:
 
 ```bash
-TWITTER_BROWSER=chrome twitter feed    # Supported: arc, chrome, edge, firefox, brave
+TWITTER_BROWSER=chrome twx feed    # Supported: arc, chrome, edge, firefox, brave
 ```
 
 After loading cookies, the CLI performs lightweight verification. Commands that require account access fail fast on clear auth errors (`401/403`).
@@ -296,7 +296,7 @@ Mode behavior:
   - Retry the command; the client attempts a live queryId fallback.
 
 - `Invalid tweet JSON file`
-  - Regenerate input using `twitter feed --json > tweets.json`.
+  - Regenerate input using `twx feed --json > tweets.json`.
 
 - **Windows: no output captured by pipe/subprocess** (AI agent integration)
   - This is a **ConPTY** issue, not a twitter-cli bug. Windows Terminal's ConPTY pseudo-terminal can intercept pipe output from commands with network latency.
@@ -483,69 +483,69 @@ uv tool upgrade twitter-cli
 
 ```bash
 # 时间线
-twitter feed
-twitter feed -t following
-twitter feed --filter
-twitter feed --full-text
+twx feed
+twx feed -t following
+twx feed --filter
+twx feed --full-text
 
 # 收藏
-twitter bookmarks
-twitter bookmarks --full-text
+twx bookmarks
+twx bookmarks --full-text
 
 # 搜索
-twitter search "Claude Code"
-twitter search "AI agent" -t Latest --max 50
-twitter search "AI agent" --full-text
-twitter search "topic" -o results.json         # 保存到文件
-twitter search "trending" --filter              # 启用排序筛选
+twx search "Claude Code"
+twx search "AI agent" -t Latest --max 50
+twx search "AI agent" --full-text
+twx search "topic" -o results.json         # 保存到文件
+twx search "trending" --filter              # 启用排序筛选
 
 # 推文详情
-twitter tweet 1234567890
-twitter tweet 1234567890 --full-text
+twx tweet 1234567890
+twx tweet 1234567890 --full-text
 
 # 通过序号打开上次列表里的推文
-twitter show 2                         # 打开上次 feed/search 的第 2 条
-twitter show 2 --full-text             # 在回复表格里显示完整正文
-twitter show 2 --json                  # 结构化输出
+twx show 2                         # 打开上次 feed/search 的第 2 条
+twx show 2 --full-text             # 在回复表格里显示完整正文
+twx show 2 --json                  # 结构化输出
 
 # Twitter 长文
-twitter article 1234567890
-twitter article https://x.com/user/article/1234567890 --json
-twitter article 1234567890 --markdown
-twitter article 1234567890 --output article.md
+twx article 1234567890
+twx article https://x.com/user/article/1234567890 --json
+twx article 1234567890 --markdown
+twx article 1234567890 --output article.md
 
 # 列表时间线
-twitter list 1539453138322673664
-twitter list 1539453138322673664 --full-text
+twx list 1539453138322673664
+twx list 1539453138322673664 --full-text
 
 # 用户
-twitter user elonmusk
-twitter user-posts elonmusk --max 20
-twitter user-posts elonmusk --full-text
-twitter user-posts elonmusk -o tweets.json
-twitter likes elonmusk --max 30           # ⚠️ 仅可查看自己的点赞（2024年6月起平台已私密化）
-twitter likes elonmusk --full-text
-twitter likes elonmusk -o likes.json
-twitter followers elonmusk
-twitter following elonmusk
+twx user elonmusk
+twx user-posts elonmusk --max 20
+twx user-posts elonmusk --full-text
+twx user-posts elonmusk -o tweets.json
+twx likes elonmusk --max 30           # ⚠️ 仅可查看自己的点赞（2024年6月起平台已私密化）
+twx likes elonmusk --full-text
+twx likes elonmusk -o likes.json
+twx followers elonmusk
+twx following elonmusk
 
 # 写操作
-twitter post "你好，世界！"
-twitter post "发图" --image photo.jpg              # 带图发推
-twitter post "多图" -i a.png -i b.jpg -i c.webp    # 最多 4 张图片
-twitter post "回复内容" --reply-to 1234567890
-twitter reply 1234567890 "回复" -i screenshot.png   # 带图回复
-twitter quote 1234567890 "评论" -i chart.png        # 带图引用
-twitter post "你好，世界！" --json
-twitter delete 1234567890
-twitter like 1234567890
-twitter like 1234567890 --yaml
-twitter unlike 1234567890
-twitter retweet 1234567890
-twitter unretweet 1234567890
-twitter bookmark 1234567890
-twitter unbookmark 1234567890
-twitter follow elonmusk --json
+twx post "你好，世界！"
+twx post "发图" --image photo.jpg              # 带图发推
+twx post "多图" -i a.png -i b.jpg -i c.webp    # 最多 4 张图片
+twx post "回复内容" --reply-to 1234567890
+twx reply 1234567890 "回复" -i screenshot.png   # 带图回复
+twx quote 1234567890 "评论" -i chart.png        # 带图引用
+twx post "你好，世界！" --json
+twx delete 1234567890
+twx like 1234567890
+twx like 1234567890 --yaml
+twx unlike 1234567890
+twx retweet 1234567890
+twx unretweet 1234567890
+twx bookmark 1234567890
+twx unbookmark 1234567890
+twx follow elonmusk --json
 ```
 
 ### 认证说明
@@ -560,13 +560,13 @@ twitter follow elonmusk --json
 **Chrome 多 Profile 支持**：会自动遍历所有 Chrome profile。也可以通过环境变量指定：
 
 ```bash
-TWITTER_CHROME_PROFILE="Profile 2" twitter feed
+TWITTER_CHROME_PROFILE="Profile 2" twx feed
 ```
 
 **浏览器优先级**：如果有多个浏览器，可通过 `TWITTER_BROWSER` 指定优先尝试的浏览器：
 
 ```bash
-TWITTER_BROWSER=chrome twitter feed    # 支持: arc, chrome, edge, firefox, brave
+TWITTER_BROWSER=chrome twx feed    # 支持: arc, chrome, edge, firefox, brave
 ```
 
 ### 代理支持
