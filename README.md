@@ -417,10 +417,16 @@ All tools return compact JSON for efficient LLM consumption. Authentication uses
 #### Run Manually
 
 ```bash
+# stdio transport (default — for Claude Desktop, Cursor, Continue, …)
 twitter-mcp
+
+# Network / HTTP transport on a custom port
+twitter-mcp --mcp-port 8000
 ```
 
-The server communicates over stdio and is compatible with any MCP client that supports the stdio transport.
+By default the server communicates over **stdio** and is compatible with any MCP client that supports the stdio transport.
+
+Pass `--mcp-port <PORT>` to start an HTTP server (streamable-http transport) instead, making the MCP endpoint accessible over the network at `http://0.0.0.0:<PORT>/mcp`. This is useful for remote access or multi-client setups.
 
 ## 中文
 
@@ -715,10 +721,16 @@ pip install "twitter-cli[mcp]"
 #### 手动启动
 
 ```bash
+# stdio 传输（默认，适用于 Claude Desktop、Cursor、Continue 等）
 twitter-mcp
+
+# 通过自定义端口启动网络 / HTTP 传输
+twitter-mcp --mcp-port 8000
 ```
 
-服务通过 stdio 通信，兼容所有支持 stdio 传输的 MCP 客户端。
+默认情况下，服务通过 **stdio** 通信，兼容所有支持 stdio 传输的 MCP 客户端。
+
+使用 `--mcp-port <端口>` 参数可启动 HTTP 服务（streamable-http 传输），让 MCP 端点通过网络在 `http://0.0.0.0:<端口>/mcp` 上可访问。适用于远程访问或多客户端场景。
 
 ### 更多工具
 
