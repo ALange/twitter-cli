@@ -36,6 +36,9 @@ dev = [
     "mypy>=1.14,<1.15",
     "types-PyYAML>=6.0.12",
 ]
+mcp = [
+    "mcp>=1.23.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/jackwener/twitter-cli"
@@ -44,6 +47,7 @@ Issues = "https://github.com/jackwener/twitter-cli/issues"
 
 [project.scripts]
 twitter = "twitter_cli.cli:cli"
+twitter-mcp = "twitter_cli.mcp_server:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
