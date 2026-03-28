@@ -428,6 +428,44 @@ By default the server communicates over **stdio** and is compatible with any MCP
 
 Pass `--mcp-port <PORT>` to start an HTTP server (streamable-http transport) instead, making the MCP endpoint accessible over the network at `http://0.0.0.0:<PORT>/mcp`. This is useful for remote access or multi-client setups.
 
+#### Running on Port 9090 (HTTP Transport)
+
+Follow these steps to expose the MCP server over HTTP on port 9090:
+
+1. **Install** twitter-cli with the `mcp` extra (if you haven't already):
+
+   ```bash
+   uv tool install "twitter-cli[mcp]"
+   ```
+
+2. **Log in to Twitter/X** in your browser (Chrome, Firefox, or Edge) so that the CLI can read your session cookies.
+
+3. **Start the server** on port 9090:
+
+   ```bash
+   twitter-mcp --mcp-port 9090
+   ```
+
+   The server will print a confirmation and listen on `http://0.0.0.0:9090/mcp`.
+
+4. **Connect your MCP client** to `http://localhost:9090/mcp` (streamable-http transport).  
+   For example, in **Claude Desktop** add the following to `claude_desktop_config.json`:
+
+   ```json
+   {
+     "mcpServers": {
+       "twitter": {
+         "type": "http",
+         "url": "http://localhost:9090/mcp"
+       }
+     }
+   }
+   ```
+
+5. **Verify** the connection — ask your LLM client to call `get_home_timeline` or `search_tweets`. A successful response confirms the server is reachable.
+
+> **Security note:** The HTTP server binds to `0.0.0.0` (all interfaces). If the machine is publicly accessible, restrict port 9090 with a firewall rule or run the server only on `localhost` using an SSH tunnel.
+
 ## 中文
 
 ### 功能概览
@@ -731,6 +769,44 @@ twitter-mcp --mcp-port 8000
 默认情况下，服务通过 **stdio** 通信，兼容所有支持 stdio 传输的 MCP 客户端。
 
 使用 `--mcp-port <端口>` 参数可启动 HTTP 服务（streamable-http 传输），让 MCP 端点通过网络在 `http://0.0.0.0:<端口>/mcp` 上可访问。适用于远程访问或多客户端场景。
+
+#### 在 9090 端口运行（HTTP 传输）
+
+按照以下步骤通过 HTTP 在 9090 端口暴露 MCP 服务：
+
+1. **安装**含 `mcp` 可选依赖的 twitter-cli（如尚未安装）：
+
+   ```bash
+   uv tool install "twitter-cli[mcp]"
+   ```
+
+2. 在浏览器（Chrome、Firefox 或 Edge）中**登录 Twitter/X**，使 CLI 能够读取会话 Cookie。
+
+3. 在 9090 端口**启动服务**：
+
+   ```bash
+   twitter-mcp --mcp-port 9090
+   ```
+
+   服务启动后将监听 `http://0.0.0.0:9090/mcp`。
+
+4. 将您的 MCP 客户端**连接**到 `http://localhost:9090/mcp`（streamable-http 传输）。  
+   例如，在 **Claude Desktop** 中，将以下内容添加到 `claude_desktop_config.json`：
+
+   ```json
+   {
+     "mcpServers": {
+       "twitter": {
+         "type": "http",
+         "url": "http://localhost:9090/mcp"
+       }
+     }
+   }
+   ```
+
+5. **验证**连接——让 LLM 客户端调用 `get_home_timeline` 或 `search_tweets`，收到正常响应即表示服务可用。
+
+> **安全提示：** HTTP 服务绑定在 `0.0.0.0`（所有网络接口）。如果主机可公开访问，请通过防火墙规则限制 9090 端口，或仅在 `localhost` 上运行并通过 SSH 隧道访问。
 
 ### 更多工具
 
