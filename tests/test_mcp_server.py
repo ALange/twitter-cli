@@ -314,6 +314,7 @@ class TestMain:
 
         original_host = mcp.settings.host
         original_port = mcp.settings.port
+        original_transport_security = mcp.settings.transport_security
         try:
             with patch.object(mcp, "run") as mock_run:
                 runner = CliRunner()
@@ -321,10 +322,14 @@ class TestMain:
                 assert result.exit_code == 0
                 assert mcp.settings.host == "0.0.0.0"
                 assert mcp.settings.port == 9000
+                # DNS rebinding protection must be disabled so clients connecting
+                # via the server's real IP/hostname are not rejected with 421.
+                assert mcp.settings.transport_security is None
                 mock_run.assert_called_once_with(transport="streamable-http")
         finally:
             mcp.settings.host = original_host
             mcp.settings.port = original_port
+            mcp.settings.transport_security = original_transport_security
 
     def test_invalid_port_exits_with_error(self) -> None:
         from twitter_cli.mcp_server import main

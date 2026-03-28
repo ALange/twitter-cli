@@ -240,6 +240,10 @@ def main(mcp_port: Optional[int]) -> None:
     if mcp_port is not None:
         mcp.settings.host = "0.0.0.0"
         mcp.settings.port = mcp_port
+        # DNS rebinding protection is auto-enabled for localhost, but when binding to
+        # 0.0.0.0 for network access, it must be disabled so that clients connecting
+        # via the server's real IP/hostname are not rejected with 421 Misdirected Request.
+        mcp.settings.transport_security = None
         mcp.run(transport="streamable-http")
     else:
         mcp.run(transport="stdio")
