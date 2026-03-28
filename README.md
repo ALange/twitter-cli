@@ -368,6 +368,60 @@ git clone git@github.com:jackwener/twitter-cli.git .agents/skills/twitter-cli
 
 > ⚠️ ClawHub install method is deprecated and no longer supported. Use [Skills CLI](#skills-cli-recommended) or Manual Install above.
 
+### Use as MCP Server
+
+twitter-cli includes an [MCP](https://modelcontextprotocol.io/) server so LLM clients (e.g. Claude Desktop, Cursor, Continue) can call Twitter/X tools directly — no API keys needed.
+
+#### Installation
+
+The MCP server requires the optional `mcp` extra:
+
+```bash
+# uv tool (recommended)
+uv tool install "twitter-cli[mcp]"
+
+# pipx
+pipx install "twitter-cli[mcp]"
+
+# pip
+pip install "twitter-cli[mcp]"
+```
+
+#### Claude Desktop
+
+Add the following to your `claude_desktop_config.json` (found at `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS, `%APPDATA%\Claude\claude_desktop_config.json` on Windows):
+
+```json
+{
+  "mcpServers": {
+    "twitter": {
+      "command": "twitter-mcp"
+    }
+  }
+}
+```
+
+Restart Claude Desktop after saving. The Twitter tools will appear automatically.
+
+#### Available Tools
+
+| Tool | Description |
+| --- | --- |
+| `search_tweets` | Search tweets by keyword with advanced filters (user, language, date range, engagement thresholds) |
+| `get_home_timeline` | Fetch the authenticated user's home (For You) timeline |
+| `get_user_timeline` | Fetch tweets posted by a specific user |
+| `get_user_profile` | Fetch a user's profile (bio, followers, following count, etc.) |
+
+All tools return compact JSON for efficient LLM consumption. Authentication uses the same browser-cookie approach as the main CLI.
+
+#### Run Manually
+
+```bash
+twitter-mcp
+```
+
+The server communicates over stdio and is compatible with any MCP client that supports the stdio transport.
+
 ## 中文
 
 ### 功能概览
@@ -611,6 +665,60 @@ git clone git@github.com:jackwener/twitter-cli.git .agents/skills/twitter-cli
 #### ~~OpenClaw / ClawHub~~（已过时）
 
 > ⚠️ ClawHub 安装方式已过时，不再支持。请使用上方的 Skills CLI 或手动安装。
+
+### 作为 MCP Server 使用
+
+twitter-cli 内置 [MCP](https://modelcontextprotocol.io/) 服务端，让 Claude Desktop、Cursor、Continue 等 LLM 客户端可以直接调用 Twitter/X 工具，无需 API Key。
+
+#### 安装
+
+MCP 服务端需要安装可选依赖 `mcp`：
+
+```bash
+# uv tool（推荐）
+uv tool install "twitter-cli[mcp]"
+
+# pipx
+pipx install "twitter-cli[mcp]"
+
+# pip
+pip install "twitter-cli[mcp]"
+```
+
+#### 配置 Claude Desktop
+
+将以下内容添加到 `claude_desktop_config.json`（macOS 路径：`~/Library/Application Support/Claude/claude_desktop_config.json`，Windows 路径：`%APPDATA%\Claude\claude_desktop_config.json`）：
+
+```json
+{
+  "mcpServers": {
+    "twitter": {
+      "command": "twitter-mcp"
+    }
+  }
+}
+```
+
+保存后重启 Claude Desktop，Twitter 工具会自动出现。
+
+#### 可用工具
+
+| 工具 | 说明 |
+| --- | --- |
+| `search_tweets` | 按关键词搜索推文，支持用户、语言、时间范围、互动量等高级过滤条件 |
+| `get_home_timeline` | 获取已登录用户的首页时间线（For You） |
+| `get_user_timeline` | 获取指定用户发布的推文 |
+| `get_user_profile` | 获取用户资料（简介、粉丝数、关注数等） |
+
+所有工具返回紧凑 JSON，便于 LLM 高效消费。认证方式与主 CLI 相同，自动读取浏览器 Cookie。
+
+#### 手动启动
+
+```bash
+twitter-mcp
+```
+
+服务通过 stdio 通信，兼容所有支持 stdio 传输的 MCP 客户端。
 
 ### 更多工具
 
