@@ -12,6 +12,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 from click.testing import CliRunner
 
+pytest.importorskip("mcp", reason="mcp extra not installed; run: uv sync --extra mcp")
+
 from twitter_cli.models import Author, Metrics, Tweet, UserProfile
 
 

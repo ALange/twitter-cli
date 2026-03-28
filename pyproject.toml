@@ -46,7 +46,7 @@ Repository = "https://github.com/jackwener/twitter-cli"
 Issues = "https://github.com/jackwener/twitter-cli/issues"
 
 [project.scripts]
-twitter = "twitter_cli.cli:cli"
+twx = "twitter_cli.cli:cli"
 twitter-mcp = "twitter_cli.mcp_server:main"
 
 [tool.pytest.ini_options]

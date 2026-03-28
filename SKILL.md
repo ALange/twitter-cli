@@ -37,7 +37,7 @@ uv tool upgrade twitter-cli
 ### Step 0: Check if already authenticated
 
 ```bash
-twitter status --yaml >/dev/null && echo "AUTH_OK" || echo "AUTH_NEEDED"
+twx status --yaml >/dev/null && echo "AUTH_OK" || echo "AUTH_NEEDED"
 ```
 
 If `AUTH_OK`, skip to [Command Reference](#command-reference).
@@ -48,11 +48,11 @@ If `AUTH_NEEDED`, proceed to guide the user:
 **Method A: Browser cookie extraction (recommended)**
 
 Ensure user is logged into x.com in one of: Arc, Chrome, Edge, Firefox, Brave. twitter-cli auto-extracts cookies.
-All Chrome profiles are scanned automatically. To specify a profile: `TWITTER_CHROME_PROFILE="Profile 2" twitter feed`.
-To prioritize a specific browser: `TWITTER_BROWSER=chrome twitter feed` (supported: arc, chrome, edge, firefox, brave).
+All Chrome profiles are scanned automatically. To specify a profile: `TWITTER_CHROME_PROFILE="Profile 2" twx feed`.
+To prioritize a specific browser: `TWITTER_BROWSER=chrome twx feed` (supported: arc, chrome, edge, firefox, brave).
 
 ```bash
-twitter whoami
+twx whoami
 ```
 
 **Method B: Environment variables**
@@ -60,7 +60,7 @@ twitter whoami
 ```bash
 export TWITTER_AUTH_TOKEN="<auth_token from browser>"
 export TWITTER_CT0="<ct0 from browser>"
-twitter whoami
+twx whoami
 ```
 
 **Method C: Full cookie string (for cloud/remote agents)**
@@ -83,7 +83,7 @@ Then extract and set env vars:
 FULL_COOKIE="<user's cookie string>"
 export TWITTER_AUTH_TOKEN=$(echo "$FULL_COOKIE" | grep -oE 'auth_token=[a-f0-9]+' | cut -d= -f2)
 export TWITTER_CT0=$(echo "$FULL_COOKIE" | grep -oE 'ct0=[a-f0-9]+' | cut -d= -f2)
-twitter whoami
+twx whoami
 ```
 
 ### Step 2: Handle common auth issues
@@ -100,7 +100,7 @@ twitter whoami
 ### Default: Rich table (human-readable)
 
 ```bash
-twitter feed                          # Pretty table output
+twx feed                          # Pretty table output
 ```
 
 ### YAML / JSON: structured output
@@ -108,8 +108,8 @@ twitter feed                          # Pretty table output
 Non-TTY stdout defaults to YAML automatically. Use `OUTPUT=yaml|json|rich|auto` to override.
 
 ```bash
-twitter feed --yaml
-twitter feed --json | jq '.[0].text'
+twx feed --yaml
+twx feed --json | jq '.[0].text'
 ```
 
 All machine-readable output uses the envelope documented in [SCHEMA.md](./SCHEMA.md).
@@ -122,17 +122,17 @@ It affects rich table list views such as `feed`, `bookmarks`, `search`, `user-po
 It does **not** change `--json`, `--yaml`, or `-c` compact output.
 
 ```bash
-twitter feed --full-text
-twitter search "AI agent" --full-text
-twitter user-posts elonmusk --max 20 --full-text
-twitter tweet 1234567890 --full-text
+twx feed --full-text
+twx search "AI agent" --full-text
+twx user-posts elonmusk --max 20 --full-text
+twx tweet 1234567890 --full-text
 ```
 
 ### Compact: `-c` flag (minimal tokens for LLM)
 
 ```bash
-twitter -c feed --max 10              # Minimal fields, great for LLM context
-twitter -c search "AI" --max 20       # ~80% fewer tokens than --json
+twx -c feed --max 10              # Minimal fields, great for LLM context
+twx -c search "AI" --max 20       # ~80% fewer tokens than --json
 ```
 
 **Compact fields (per tweet):** `id`, `author` (@handle), `text` (truncated 140 chars), `likes`, `rts`, `time` (short format)
@@ -142,63 +142,63 @@ twitter -c search "AI" --max 20       # ~80% fewer tokens than --json
 ### Read Operations
 
 ```bash
-twitter status                         # Quick auth check
-twitter status --yaml                  # Structured auth status
-twitter whoami                         # Current authenticated user
-twitter whoami --yaml                  # YAML output
-twitter whoami --json                  # JSON output
-twitter user elonmusk                  # User profile
-twitter user elonmusk --json           # JSON output
-twitter feed                           # Home timeline (For You)
-twitter feed -t following              # Following timeline
-twitter feed --max 50                  # Limit count
-twitter feed --full-text               # Show full post body in table
-twitter feed --filter                  # Enable ranking filter
-twitter feed --yaml > tweets.yaml      # Export as YAML
-twitter feed --input tweets.json       # Read from local JSON file
-twitter bookmarks                      # Bookmarked tweets
-twitter bookmarks --full-text          # Full text in bookmarks table
-twitter bookmarks --max 30 --yaml
-twitter search "keyword"               # Search tweets
-twitter search "AI agent" -t Latest --max 50
-twitter search "AI agent" --full-text  # Full text in search results
-twitter search "topic" -o results.json # Save to file
-twitter tweet 1234567890               # Tweet detail + replies
-twitter tweet 1234567890 --full-text   # Full text in reply table
-twitter tweet https://x.com/user/status/12345  # Accepts URL
-twitter show 2                         # Open tweet #2 from last feed/search list
-twitter show 2 --full-text             # Full text in reply table
-twitter show 2 --json                  # Structured output
-twitter list 1539453138322673664       # List timeline
-twitter list 1539453138322673664 --full-text
-twitter user-posts elonmusk --max 20   # User's tweets
-twitter user-posts elonmusk --full-text
-twitter likes elonmusk --max 30        # User's likes (own only, see note)
-twitter likes elonmusk --full-text
-twitter followers elonmusk --max 50    # Followers
-twitter following elonmusk --max 50    # Following
+twx status                         # Quick auth check
+twx status --yaml                  # Structured auth status
+twx whoami                         # Current authenticated user
+twx whoami --yaml                  # YAML output
+twx whoami --json                  # JSON output
+twx user elonmusk                  # User profile
+twx user elonmusk --json           # JSON output
+twx feed                           # Home timeline (For You)
+twx feed -t following              # Following timeline
+twx feed --max 50                  # Limit count
+twx feed --full-text               # Show full post body in table
+twx feed --filter                  # Enable ranking filter
+twx feed --yaml > tweets.yaml      # Export as YAML
+twx feed --input tweets.json       # Read from local JSON file
+twx bookmarks                      # Bookmarked tweets
+twx bookmarks --full-text          # Full text in bookmarks table
+twx bookmarks --max 30 --yaml
+twx search "keyword"               # Search tweets
+twx search "AI agent" -t Latest --max 50
+twx search "AI agent" --full-text  # Full text in search results
+twx search "topic" -o results.json # Save to file
+twx tweet 1234567890               # Tweet detail + replies
+twx tweet 1234567890 --full-text   # Full text in reply table
+twx tweet https://x.com/user/status/12345  # Accepts URL
+twx show 2                         # Open tweet #2 from last feed/search list
+twx show 2 --full-text             # Full text in reply table
+twx show 2 --json                  # Structured output
+twx list 1539453138322673664       # List timeline
+twx list 1539453138322673664 --full-text
+twx user-posts elonmusk --max 20   # User's tweets
+twx user-posts elonmusk --full-text
+twx likes elonmusk --max 30        # User's likes (own only, see note)
+twx likes elonmusk --full-text
+twx followers elonmusk --max 50    # Followers
+twx following elonmusk --max 50    # Following
 ```
 
 ### Write Operations
 
 ```bash
-twitter post "Hello from twitter-cli!"              # Post tweet
-twitter post "Hello!" --image photo.jpg              # Post with image
-twitter post "Gallery" -i a.png -i b.jpg             # Up to 4 images
-twitter reply 1234567890 "Great tweet!"              # Reply (standalone)
-twitter reply 1234567890 "Nice!" -i pic.png          # Reply with image
-twitter post "reply text" --reply-to 1234567890      # Reply (via post)
-twitter quote 1234567890 "Interesting take"          # Quote-tweet
-twitter quote 1234567890 "Look" -i chart.png         # Quote with image
-twitter delete 1234567890                            # Delete tweet
-twitter like 1234567890                              # Like
-twitter unlike 1234567890                            # Unlike
-twitter retweet 1234567890                           # Retweet
-twitter unretweet 1234567890                         # Unretweet
-twitter bookmark 1234567890                          # Bookmark
-twitter unbookmark 1234567890                        # Unbookmark
-twitter follow elonmusk                              # Follow user
-twitter unfollow elonmusk                            # Unfollow user
+twx post "Hello from twitter-cli!"              # Post tweet
+twx post "Hello!" --image photo.jpg              # Post with image
+twx post "Gallery" -i a.png -i b.jpg             # Up to 4 images
+twx reply 1234567890 "Great tweet!"              # Reply (standalone)
+twx reply 1234567890 "Nice!" -i pic.png          # Reply with image
+twx post "reply text" --reply-to 1234567890      # Reply (via post)
+twx quote 1234567890 "Interesting take"          # Quote-tweet
+twx quote 1234567890 "Look" -i chart.png         # Quote with image
+twx delete 1234567890                            # Delete tweet
+twx like 1234567890                              # Like
+twx unlike 1234567890                            # Unlike
+twx retweet 1234567890                           # Retweet
+twx unretweet 1234567890                         # Unretweet
+twx bookmark 1234567890                          # Bookmark
+twx unbookmark 1234567890                        # Unbookmark
+twx follow elonmusk                              # Follow user
+twx unfollow elonmusk                            # Unfollow user
 ```
 
 **Image upload notes:**
@@ -212,7 +212,7 @@ twitter unfollow elonmusk                            # Unfollow user
 ### Post and verify
 
 ```bash
-twitter post "My tweet text" 2>/dev/null
+twx post "My tweet text" 2>/dev/null
 # Output includes tweet URL: 🔗 https://x.com/i/status/<id>
 ```
 
@@ -220,91 +220,91 @@ twitter post "My tweet text" 2>/dev/null
 
 ```bash
 # Single image
-twitter post "Check this out!" --image /path/to/photo.jpg
+twx post "Check this out!" --image /path/to/photo.jpg
 
 # Multiple images
-twitter post "Photo gallery" -i img1.png -i img2.jpg -i img3.webp
+twx post "Photo gallery" -i img1.png -i img2.jpg -i img3.webp
 ```
 
 ### Reply to someone's latest tweet
 
 ```bash
-TWEET_ID=$(twitter user-posts targetuser --max 1 --json | jq -r '.data[0].id')
-twitter reply "$TWEET_ID" "Nice post!"
+TWEET_ID=$(twx user-posts targetuser --max 1 --json | jq -r '.data[0].id')
+twx reply "$TWEET_ID" "Nice post!"
 ```
 
 ### Create a thread
 
 ```bash
 # Post first tweet, capture output for tweet ID
-twitter post "Thread 1/3: First point"
+twx post "Thread 1/3: First point"
 # Note the tweet ID from output, then:
-twitter reply <first_tweet_id> "2/3: Second point"
-twitter reply <second_tweet_id> "3/3: Final point"
+twx reply <first_tweet_id> "2/3: Second point"
+twx reply <second_tweet_id> "3/3: Final point"
 ```
 
 ### Quote-tweet with commentary
 
 ```bash
-TWEET_ID=$(twitter search "interesting topic" --max 1 --json | jq -r '.data[0].id')
-twitter quote "$TWEET_ID" "This is a great insight!"
+TWEET_ID=$(twx search "interesting topic" --max 1 --json | jq -r '.data[0].id')
+twx quote "$TWEET_ID" "This is a great insight!"
 ```
 
 ### Like all search results
 
 ```bash
-twitter search "interesting topic" --max 5 --json | jq -r '.data[].id' | while read id; do
-  twitter like "$id"
+twx search "interesting topic" --max 5 --json | jq -r '.data[].id' | while read id; do
+  twx like "$id"
 done
 ```
 
 ### Get user info then follow
 
 ```bash
-twitter user targethandle --json | jq '.data | {username, followers, bio}'
-twitter follow targethandle
+twx user targethandle --json | jq '.data | {username, followers, bio}'
+twx follow targethandle
 ```
 
 ### Find most popular tweets from a user
 
 ```bash
-twitter user-posts elonmusk --max 20 --json | jq '.data | sort_by(.metrics.likes) | reverse | .[:3] | .[] | {id, text: .text[:80], likes: .metrics.likes}'
+twx user-posts elonmusk --max 20 --json | jq '.data | sort_by(.metrics.likes) | reverse | .[:3] | .[] | {id, text: .text[:80], likes: .metrics.likes}'
 ```
 
 ### Check follower relationship
 
 ```bash
-MY_NAME=$(twitter whoami --json | jq -r '.data.user.username')
-twitter followers "$MY_NAME" --max 200 --json | jq -r '.data[].username' | grep -q "targetuser" && echo "Yes" || echo "No"
+MY_NAME=$(twx whoami --json | jq -r '.data.user.username')
+twx followers "$MY_NAME" --max 200 --json | jq -r '.data[].username' | grep -q "targetuser" && echo "Yes" || echo "No"
 ```
 
 ### Daily reading workflow
 
 ```bash
 # Compact mode for token-efficient LLM context
-twitter -c feed -t following --max 30
-twitter -c bookmarks --max 20
+twx -c feed -t following --max 30
+twx -c bookmarks --max 20
 
 # Rich table with complete post bodies
-twitter feed -t following --max 20 --full-text
-twitter search "AI agent" --max 20 --full-text
+twx feed -t following --max 20 --full-text
+twx search "AI agent" --max 20 --full-text
 
 # Full JSON for analysis
-twitter feed -t following --max 30 -o following.json
-twitter bookmarks --max 20 -o bookmarks.json
+twx feed -t following --max 30 -o following.json
+twx bookmarks --max 20 -o bookmarks.json
 ```
 
 ### Search with jq filtering
 
 ```bash
 # Tweets with > 100 likes
-twitter search "AI safety" --max 20 --json | jq '[.data[] | select(.metrics.likes > 100)]'
+twx search "AI safety" --max 20 --json | jq '[.data[] | select(.metrics.likes > 100)]'
 
 # Extract just text and author
-twitter search "rust lang" --max 10 --json | jq '.data[] | {author: .author.screenName, text: .text[:100]}'
+twx search "rust lang" --max 10 --json | jq '.data[] | {author: .author.screenName, text: .text[:100]}'
 
 # Most engaged tweets
-twitter search "topic" --max 20 --json | jq '.data | sort_by(.metrics.likes) | reverse | .[:5] | .[].id'
+twx search "topic" --max 20 --json | jq '.data | sort_by(.metrics.likes) | reverse | .[:5] | .[].id'
 ```
 
 ## Ranking Filter
@@ -312,8 +312,8 @@ twitter search "topic" --max 20 --json | jq '.data | sort_by(.metrics.likes) | r
 Filtering is opt-in. Enable with `--filter`:
 
 ```bash
-twitter feed --filter
-twitter bookmarks --filter
+twx feed --filter
+twx bookmarks --filter
 ```
 
 ## Error Reference
@@ -335,7 +335,7 @@ twitter bookmarks --filter
 - **No notifications** — can't read notifications
 - **No polls** — can't create polls
 - **Single account** — one set of credentials at a time
-- **Likes are private** — Twitter/X made all likes private since June 2024. `twitter likes` only works for your own account
+- **Likes are private** — Twitter/X made all likes private since June 2024. `twx likes` only works for your own account
 
 ## Safety Notes
 
