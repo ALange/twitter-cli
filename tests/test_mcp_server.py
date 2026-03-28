@@ -7,9 +7,10 @@ from __future__ import annotations
 
 import json
 from typing import Any, List, Optional
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
+from click.testing import CliRunner
 
 from twitter_cli.models import Author, Metrics, Tweet, UserProfile
 
@@ -290,3 +291,42 @@ class TestGetUserProfile:
         result = get_user_profile("nobody")
         data = json.loads(result)
         assert "error" in data
+
+# ---------------------------------------------------------------------------
+# main() entry-point tests
+# ---------------------------------------------------------------------------
+
+
+class TestMain:
+    def test_stdio_transport_by_default(self) -> None:
+        from twitter_cli.mcp_server import main, mcp
+
+        with patch.object(mcp, "run") as mock_run:
+            runner = CliRunner()
+            result = runner.invoke(main, [])
+            assert result.exit_code == 0
+            mock_run.assert_called_once_with(transport="stdio")
+
+    def test_network_transport_with_mcp_port(self) -> None:
+        from twitter_cli.mcp_server import main, mcp
+
+        original_host = mcp.settings.host
+        original_port = mcp.settings.port
+        try:
+            with patch.object(mcp, "run") as mock_run:
+                runner = CliRunner()
+                result = runner.invoke(main, ["--mcp-port", "9000"])
+                assert result.exit_code == 0
+                assert mcp.settings.host == "0.0.0.0"
+                assert mcp.settings.port == 9000
+                mock_run.assert_called_once_with(transport="streamable-http")
+        finally:
+            mcp.settings.host = original_host
+            mcp.settings.port = original_port
+
+    def test_invalid_port_exits_with_error(self) -> None:
+        from twitter_cli.mcp_server import main
+
+        runner = CliRunner()
+        result = runner.invoke(main, ["--mcp-port", "not-a-port"])
+        assert result.exit_code != 0

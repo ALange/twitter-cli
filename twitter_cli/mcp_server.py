@@ -6,6 +6,9 @@ read timelines, look up user profiles, and more.
 Usage (stdio transport, for use with Claude Desktop or any MCP client):
     twitter-mcp
 
+Usage (network/HTTP transport, for remote or multi-client access):
+    twitter-mcp --mcp-port 8000
+
 The server reads authentication credentials from the browser just like the
 main CLI does (via browser-cookie3).
 """
@@ -15,6 +18,8 @@ from __future__ import annotations
 import json
 import logging
 from typing import List, Optional
+
+import click
 
 from mcp.server.fastmcp import FastMCP
 
@@ -212,9 +217,26 @@ def get_user_profile(screen_name: str) -> str:
 # ---------------------------------------------------------------------------
 
 
-def main() -> None:
-    """Run the MCP server (stdio transport by default)."""
-    mcp.run(transport="stdio")
+@click.command()
+@click.option(
+    "--mcp-port",
+    type=int,
+    default=None,
+    help=(
+        "Port to listen on for network (HTTP) transport. "
+        "If omitted, the server communicates over stdio. "
+        "WARNING: binds to 0.0.0.0 — ensure the port is firewalled or "
+        "access-controlled before exposing it on a shared network."
+    ),
+)
+def main(mcp_port: Optional[int]) -> None:
+    """Run the MCP server (stdio by default, HTTP if --mcp-port is given)."""
+    if mcp_port is not None:
+        mcp.settings.host = "0.0.0.0"
+        mcp.settings.port = mcp_port
+        mcp.run(transport="streamable-http")
+    else:
+        mcp.run(transport="stdio")
 
 
 if __name__ == "__main__":
