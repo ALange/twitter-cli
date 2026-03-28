@@ -21,7 +21,13 @@ from typing import List, Optional
 
 import click
 
-from mcp.server.fastmcp import FastMCP
+try:
+    from mcp.server.fastmcp import FastMCP
+except ImportError as _mcp_missing:
+    raise ImportError(
+        "The 'mcp' package is required to run the MCP server. "
+        "Install it with: uv tool install 'twitter-cli[mcp]' or pip install 'twitter-cli[mcp]'"
+    ) from _mcp_missing
 
 from .auth import get_cookies
 from .client import TwitterClient
