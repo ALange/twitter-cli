@@ -6,7 +6,8 @@ namespace XCliSharp;
 public static class TimeUtil
 {
     // Twitter API timestamp format: "Sat Mar 08 12:00:00 +0000 2026"
-    // Parts[0]=DayName, [1]=Month, [2]=Day, [3]=Time, [4]=TzOffset, [5]=Year
+    // Split by whitespace → ["Sat", "Mar", "08", "12:00:00", "+0000", "2026"]
+    //                          [0]   [1]   [2]     [3]        [4]    [5]
     private const string DateWithoutTzFormat = "MMM dd HH:mm:ss yyyy";
 
     private static DateTimeOffset? ParseTwitterTime(string? createdAt)

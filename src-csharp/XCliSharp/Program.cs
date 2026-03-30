@@ -735,6 +735,37 @@ root.AddCommand(MakeFollowCmd("unfollow", "Unfollow a user", false, jsonOpt, yam
     root.AddCommand(showCmd);
 }
 
+// ── MCP SERVER ────────────────────────────────────────────────────────────
+{
+    var mcpCmd = new Command("mcp-server", "Run as an MCP server for LLM clients");
+    var hostOpt = new Option<string>(
+        "--host",
+        description: "Host/IP to bind to",
+        getDefaultValue: () => "localhost");
+    var portOpt = new Option<int>(
+        "--port",
+        description: "TCP port to listen on",
+        getDefaultValue: () => 3001);
+    var stdioOpt = new Option<bool>(
+        "--stdio",
+        description: "Use stdio transport instead of HTTP (for Claude Desktop, etc.)");
+
+    mcpCmd.AddOption(hostOpt);
+    mcpCmd.AddOption(portOpt);
+    mcpCmd.AddOption(stdioOpt);
+
+    mcpCmd.SetHandler(async (ctx) =>
+    {
+        var host = ctx.ParseResult.GetValueForOption(hostOpt) ?? "localhost";
+        var port = ctx.ParseResult.GetValueForOption(portOpt);
+        var useStdio = ctx.ParseResult.GetValueForOption(stdioOpt);
+
+        ctx.ExitCode = await McpServer.RunAsync(host, port, useStdio);
+    });
+
+    root.AddCommand(mcpCmd);
+}
+
 // ── VERSION ───────────────────────────────────────────────────────────────
 {
     var versionCmd = new Command("version", "Show version information");
