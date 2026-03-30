@@ -9,3 +9,9 @@ build/
 !tests/fixtures/*.json
 !config.yaml
 .idea/
+
+# .NET build artifacts
+src-csharp/**/bin/
+src-csharp/**/obj/
+src-csharp/TestResults/
+src-csharp/**/*.user

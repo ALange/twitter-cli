@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="XCliSharp.Tests/XCliSharp.Tests.csproj" />
+  <Project Path="XCliSharp/XCliSharp.csproj" />
+</Solution>
