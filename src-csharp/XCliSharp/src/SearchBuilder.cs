@@ -50,12 +50,7 @@ public static class SearchBuilder
 
         if (exclude is not null)
             foreach (var item in exclude)
-            {
-                var lower = item.ToLowerInvariant();
-                parts.Add(lower is "retweets" or "replies" or "links"
-                    ? $"-filter:{lower}"
-                    : $"-filter:{lower}");
-            }
+                parts.Add($"-filter:{item.ToLowerInvariant()}");
 
         if (minLikes.HasValue) parts.Add($"min_faves:{minLikes.Value}");
         if (minRetweets.HasValue) parts.Add($"min_retweets:{minRetweets.Value}");
