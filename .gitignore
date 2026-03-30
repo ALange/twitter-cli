@@ -13,5 +13,5 @@ build/
 # .NET build artifacts
 src-csharp/**/bin/
 src-csharp/**/obj/
-src-csharp/TestResults/
+src-csharp/**/TestResults/
 src-csharp/**/*.user
