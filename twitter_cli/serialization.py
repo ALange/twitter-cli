@@ -150,8 +150,6 @@ def tweets_to_data(tweets: Iterable[Tweet]) -> List[Dict[str, Any]]:
 def tweet_to_compact_dict(tweet: Tweet) -> Dict[str, Any]:
     """Convert a Tweet into a compact dict with minimal fields for LLM consumption."""
     text = tweet.text.replace("\n", " ").strip()
-    if len(text) > 140:
-        text = text[:137] + "..."
     # Short time: "Mar 07 05:51" from "Sat Mar 07 05:51:02 +0000 2026"
     parts = tweet.created_at.split()
     if len(parts) >= 4:

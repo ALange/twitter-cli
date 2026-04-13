@@ -51,8 +51,7 @@ def test_compact_serialization(tweet_factory) -> None:
     assert compact["id"] == "42"
     assert compact["author"] == "@alice"
     assert compact["time"] == "Mar 07 05:51"
-    assert len(compact["text"]) <= 140
-    assert compact["text"].endswith("...")
+    assert compact["text"] == "A" * 200
     assert compact["likes"] == 10
     assert compact["rts"] == 2
     # Should only have 6 keys
